@@ -13,48 +13,67 @@
 <body>
   <dialog id="idDia_Upload">
     <fieldset>
-      <legend>Hauptanlage in Stückliste einfügen</legend>
+      <legend>Abgleich von BNR-Vorschaulisten</legend>
       <ul id="idUL_Upload">
       </ul>
       <button type="button" id="idBtn_infoCloseUpload" autofocus>Schließen</button>
     </fieldset>
   </dialog>
-  <dialog id="idDia_Error">
-    <fieldset>
-      <legend>Fehler in Excellisten</legend>
-      <ul id="idUL_Error">
-      </ul>
-      <button type="button" id="idBtn_infoCloseError" autofocus>Schließen</button>
-    </fieldset>
-  </dialog>
-  <dialog id="idDia_SOU">
-    <fieldset>
-      <legend>SOU-Stücklistendatei erstellen</legend>
-      <ul id="idUL_SOU">
-      </ul>
-      <button type="button" id="idBtn_infoCloseSOU" autofocus>Schließen</button>
-    </fieldset>
-  </dialog>
+
   <main>
     <div>
-      <h1>MM-EV-Liste</h1>
+      <h1>MM-Vorschaulistenabgleich</h1>
     </div>
     <fieldset>
-      <legend><button type="button" id="idBtn_infoUpload" uiSize="size1"><img src="Data/cInfo.svg"></img></button>Listen Hochladen</legend>
+      <legend><button type="button" id="idBtn_infoUpload" uiSize="width1"><img src="Data/cInfo.svg"></img></button>Listen Hochladen</legend>
       <div>
         <input type="number" uiRadius="left" id="idVin_mainAssemblyNr"></input><input type="text" uiRadius="right" id="idVin_mainAssemblyName"></input>
       </div>
-      <div><label class="cl_infoBTN" uiRadius="left" uiSize="size7" id="idLbl_inputSOU" for="idVin_inputSOU">SOU-Liste als ".xlsx"<input type="file" id="idVin_inputSOU" accept=".xlsx" hidden></input>
-        </label><button type="button" id="idBtn_infoSOU" uiSize="size1" uiRadius="none"><img src="Data/cInfo.svg"></img></button><label class="cl_info" uiRadius="right" id="idLbl_loadedSOU"></label>
+      <div>
+        <textarea id="idArea_input" uiSize="width16 height3"></textarea>
       </div>
     </fieldset>
     <fieldset>
-      <legend><button type="button" id="idBtn_infoError" uiSize="size1"><img src="Data/cInfo.svg"></img></button>Fehler in Excellisten</legend>
-      <label id="idLbl_missingIDs"></label>
+      <legend>Einstellungen</legend>
+      <div>
+        <label class="cl_infoCB" uiRadius="left"><input class="cl_info" type="checkbox" id="idCB_calculateNetto"></input>
+        </label><label for="idCB_calculateNetto" class="cl_info" uiSize="width11" uiRadius="right">Nettomengen verrechnen</label>
+      </div>
+      <div>
+        <label class="cl_infoCB" uiRadius="left"><input class="cl_info" type="checkbox" id="idCB_calculateBrutto"></input>
+        </label><label for="idCB_calculateBrutto" class="cl_info" uiSize="width11" uiRadius="right">Bruttomengen verrechnen</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Vorschau</legend>
+      <div>
+        <div id="idTab_vorschau"></div>
+      </div>
     </fieldset>
     <fieldset>
       <legend>Download</legend>
-      <div><button uiRadius="left" id="idBtn_download">Download</button><label class="cl_info" uiRadius="right" id="idLbl_fileName"></label></div>
+      <div><button uiRadius="left" id="idBtn_download"></button><label class="cl_info" uiRadius="right" id="idLbl_fileName"></label></div>
+    </fieldset>
+    <fieldset>
+      <legend>Test: Bezeichnungskorrektur</legend>
+      <div>
+        <input uiRadius="left" id="idVin_Test_mmID"></input><label for="idVin_Test_mmID" class="cl_info" uiRadius="right">ArtikelNr</label>
+      </div>
+      <div>
+        <input uiRadius="left" id="idVin_Test_name"></input><label for="idVin_Test_name" class="cl_info" uiRadius="right">Bezeichnung</label>
+      </div>
+      <div>
+        <input uiRadius="left" id="idVin_Test_kind"></input><label for="idVin_Test_kind" class="cl_info" uiRadius="right">ArtikelArt</label>
+      </div>
+      <div>
+        <input uiRadius="left" id="idVin_Test_netto"></input><label for="idVin_Test_netto" class="cl_info" uiRadius="right">NettoMenge</label>
+      </div>
+      <div>
+        <input uiRadius="left" id="idVin_Test_brutto"></input><label for="idVin_Test_brutto" class="cl_info" uiRadius="right">Bruttobedarf</label>
+      </div>
+      <div>
+        <input uiRadius="left" id="idVin_Test_unit"></input><label for="idVin_Test_unit" class="cl_info" uiRadius="right">Einheit</label>
+      </div>
     </fieldset>
   </main>
 </body>
