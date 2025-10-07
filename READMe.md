@@ -1,3 +1,3 @@
-# MM-EV-Listen
+# MM-Vorschaulistenabgleich
 
-[Link to website](https://klaushe.github.io/MM-EV-Listen/)
+[Link to website](https://klaushe.github.io/MM-Vorschaulistenabgleich/)
