@@ -5,20 +5,9 @@ initEL({ id: "idVin_mainAssemblyNr", fn: getMainNumber, resetValue: "MM-Nummern 
 initEL({ id: "idVin_mainAssemblyName", fn: getMainName, resetValue: "Anlagename" });
 const Area_input = initEL({ id: "idArea_input", fn: readData, resetValue: "Zwischenablage hier einfügen" });
 
-const CB_calculateNetto = initEL({ id: "idCB_calculateNetto", fn: changeSettings, resetValue: false });
-const CB_calculateBrutto = initEL({ id: "idCB_calculateBrutto", fn: changeSettings, resetValue: false });
-
 initEL({ id: "idBtn_infoUpload", fn: openInfoUpload, resetValue: "Download" });
 initEL({ id: "idBtn_infoCloseUpload", fn: closeInfoUpload, resetValue: "Download" });
 const Btn_download = initEL({ id: "idBtn_download", fn: startDownload, resetValue: "Download" });
-
-const Vin_Test_mmID = initEL({ id: "idVin_Test_mmID", fn: () => testChangeHeader(0), resetValue: "ArtikelNr" });
-const Vin_Test_name = initEL({ id: "idVin_Test_name", fn: () => testChangeHeader(1), resetValue: "Bezeichnung" });
-const Vin_Test_kind = initEL({ id: "idVin_Test_kind", fn: () => testChangeHeader(2), resetValue: "ArtikelArt" });
-const Vin_Test_netto = initEL({ id: "idVin_Test_netto", fn: () => testChangeHeader(3), resetValue: "NettoMenge" });
-const Vin_Test_brutto = initEL({ id: "idVin_Test_brutto", fn: () => testChangeHeader(4), resetValue: "Bruttobedarf" });
-const Vin_Test_unit = initEL({ id: "idVin_Test_unit", fn: () => testChangeHeader(5), resetValue: "Einheit" });
-const Vin_Tests = [Vin_Test_mmID, Vin_Test_name, Vin_Test_kind, Vin_Test_netto, Vin_Test_brutto, Vin_Test_unit];
 
 window.onload = mainSetup;
 
@@ -26,12 +15,10 @@ function mainSetup() {
   rawStringAvailable = false;
   enableDownload(true);
   dbID("idLbl_fileName").textContent = `*.xlsx`;
-  populateTokenList("idUL_Upload", [...ulInfoUpload, ...partDataFields.map((item) => `- ${item}`)]);
-  CB_calculateNetto.KadReset({ resetValue: settings.calculateNetto });
-  CB_calculateBrutto.KadReset({ resetValue: settings.calculateBrutto });
+  populateTokenList("idUL_Upload", ulInfoUpload);
 }
 
-const ulInfoUpload = ["Die Zwischenablage direkt in das Textfeld kopieren und fertig!", "Erwartete Spalten:"];
+const ulInfoUpload = ["Die Zwischenablage direkt in das Textfeld kopieren und fertig!"];
 
 function openInfoUpload() {
   dbID("idDia_Upload").showModal();
@@ -76,19 +63,6 @@ function mainNumberPadded(num = null) {
   return num.toString().padStart(6, "0");
 }
 
-const settings = {
-  calculateNetto: true,
-  calculateBrutto: true,
-};
-
-function changeSettings() {
-  settings.calculateNetto = CB_calculateNetto.KadGet();
-  settings.calculateBrutto = CB_calculateBrutto.KadGet();
-  if (rawStringAvailable) {
-    parseData();
-  }
-}
-
 const fileData = {
   rawStringData: null,
   rowData: {},
@@ -112,70 +86,61 @@ let name = "Bezeichnung";
 let kind = "ArtikelArt";
 let netto = "NettoMenge";
 let brutto = "Bruttobedarf";
-// let storage = "BestandVerfuegbar";
-let unit = "Einheit";
-const partDataFields = [mmID, name, kind, netto, brutto, unit];
-// const partDataFields = [mmID, name, kind, netto, brutto, storage, unit];
+let storage = "BestandVerfuegbar";
+const usedPartDataFields = [mmID, name, kind, netto, brutto, storage];
+let headerFields = [];
+let outputHeader = [];
 
 function parseData() {
   fileData.rowData = {};
-  const rows = fileData.rawStringData.split("\n");
-  // check header
+  let rows = fileData.rawStringData.split("\n");
+
+  headerFields = rows.splice(0, 1)[0].split("\t");
+  outputHeader = [...headerFields];
 
   for (let row of rows) {
     const data = row.split("\t");
     let obj = {};
     for (let i = 0; i < data.length; i++) {
-      obj[partDataFields[i]] = isNaN(Number(data[i])) ? data[i] : Number(data[i]);
+      if (isNaN(Number(data[i]))) {
+        obj[headerFields[i]] = data[i];
+      } else {
+        obj[headerFields[i]] = Number(data[i]);
+      }
     }
     if (!fileData.rowData.hasOwnProperty(obj[mmID])) {
       fileData.rowData[obj[mmID]] = obj;
+      fileData.rowData[obj[mmID]][netto] = parseNumber(obj[netto]);
+      fileData.rowData[obj[mmID]][brutto] = parseNumber(obj[brutto]);
     } else {
-      let state = 0;
-      if (settings.calculateNetto) {
-        state += 1;
-        fileData.rowData[obj[mmID]][netto] += obj[netto];
-      }
-      if (settings.calculateBrutto) {
-        state += 2;
-        fileData.rowData[obj[mmID]][brutto] += obj[brutto];
-      }
-      switch (state) {
-        case 1:
-          if (fileData.rowData[obj[mmID]][netto] == 0) delete fileData.rowData[obj[mmID]];
-          break;
-        case 2:
-          if (fileData.rowData[obj[mmID]][brutto] == 0) delete fileData.rowData[obj[mmID]];
-          break;
-        case 3:
-          if (fileData.rowData[obj[mmID]][netto] == 0 && fileData.rowData[obj[mmID]][brutto] == 0) delete fileData.rowData[obj[mmID]];
-          break;
-      }
+      fileData.rowData[obj[mmID]][netto] += parseNumber(obj[netto]);
+      fileData.rowData[obj[mmID]][brutto] += parseNumber(obj[brutto]);
+      if (fileData.rowData[obj[mmID]][netto] == 0 && fileData.rowData[obj[mmID]][brutto] == 0) delete fileData.rowData[obj[mmID]];
     }
   }
-  delete fileData.rowData[mmID];
 
-  const header = [{ data: mmID }, { data: name }, { data: kind }, { data: netto }, { data: brutto }, { data: unit }];
+  createHeaderChecklist();
+  createPreviewTable();
+  createOutputData();
+}
+function createPreviewTable() {
+  const header = outputHeader.map((item) => {
+    return { data: item };
+  });
 
   const body = [
-    { data: Object.values(fileData.rowData).map((item) => item[mmID]) },
-    { data: Object.values(fileData.rowData).map((item) => item[name]) },
-    { data: Object.values(fileData.rowData).map((item) => item[kind]) },
-    { data: Object.values(fileData.rowData).map((item) => item[netto]) },
-    { data: Object.values(fileData.rowData).map((item) => item[brutto]) },
-    { data: Object.values(fileData.rowData).map((item) => item[unit]) },
+    ...outputHeader.map((head) => ({
+      data: Object.values(fileData.rowData).map((item) => item[head]),
+    })),
   ];
 
   KadTable.createHTMLGrid({ id: "idTab_vorschau", header, body });
+}
 
-  fileData.listData = [];
-  for (let obj of Object.values(fileData.rowData)) {
-    const arr = [];
-    for (let field of partDataFields) {
-      arr.push(obj[field]);
-    }
-    fileData.listData.push(arr);
-  }
+function parseNumber(num) {
+  if (!isNaN(num)) return num;
+  let str = num.replace(",", ".");
+  return Number(str);
 }
 
 function enableDownload(enable = null) {
@@ -187,6 +152,18 @@ function enableDownload(enable = null) {
   Btn_download.KadEnable(state);
 }
 
+function createOutputData() {
+  fileData.listData = [];
+  for (let obj of Object.values(fileData.rowData)) {
+    const arr = [];
+    for (let field of outputHeader) {
+      arr.push(obj[field]);
+    }
+    fileData.listData.push(arr);
+  }
+  fileData.listData.unshift(outputHeader);
+}
+
 function startDownload() {
   const book = utils.book_new();
   const list = utils.aoa_to_sheet(fileData.listData);
@@ -194,7 +171,33 @@ function startDownload() {
   writeFile(book, fileData.outputName);
 }
 
-function testChangeHeader(index) {
-  const value = Vin_Tests[index].KadGet();
-  partDataFields[index] = value;
+function createHeaderChecklist() {
+  const uiSize = "width9";
+
+  const header = null;
+  const body = [
+    {
+      type: "Checkbox",
+      data: headerFields.map((field) => usedPartDataFields.includes(field)),
+      settings: {
+        onclick: changeHeaderOutput,
+        uiSize,
+        names: ["headerCheck"],
+        align: "right",
+      },
+    },
+    { data: headerFields, settings: { for: "headerCheck", align: "left" } },
+  ];
+  KadTable.createHTMLGrid({ id: "idTab_Ausgabespalten", header, body });
+}
+
+function changeHeaderOutput() {
+  outputHeader = [];
+  for (let i = 0; i < headerFields.length; i++) {
+    const id = `idCheckbox_headerCheck_${i}`;
+    let check = dbID(id).checked;
+    if (check) outputHeader.push(headerFields[i]);
+  }
+  createPreviewTable();
+  createOutputData();
 }

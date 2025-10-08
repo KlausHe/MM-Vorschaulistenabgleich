@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
   <meta charset="UTF-8">
@@ -34,45 +34,19 @@
       </div>
     </fieldset>
     <fieldset>
-      <legend>Einstellungen</legend>
+      <legend>Download</legend>
+      <div><button uiRadius="left" id="idBtn_download"></button><label class="cl_info" uiRadius="right" id="idLbl_fileName"></label></div>
+    </fieldset>
+    <fieldset>
+      <legend>Ausgabespalten</legend>
       <div>
-        <label class="cl_infoCB" uiRadius="left"><input class="cl_info" type="checkbox" id="idCB_calculateNetto"></input>
-        </label><label for="idCB_calculateNetto" class="cl_info" uiSize="width11" uiRadius="right">Nettomengen verrechnen</label>
-      </div>
-      <div>
-        <label class="cl_infoCB" uiRadius="left"><input class="cl_info" type="checkbox" id="idCB_calculateBrutto"></input>
-        </label><label for="idCB_calculateBrutto" class="cl_info" uiSize="width11" uiRadius="right">Bruttomengen verrechnen</label>
+        <div id="idTab_Ausgabespalten"></div>
       </div>
     </fieldset>
     <fieldset>
       <legend>Vorschau</legend>
       <div>
         <div id="idTab_vorschau"></div>
-      </div>
-    </fieldset>
-    <fieldset>
-      <legend>Download</legend>
-      <div><button uiRadius="left" id="idBtn_download"></button><label class="cl_info" uiRadius="right" id="idLbl_fileName"></label></div>
-    </fieldset>
-    <fieldset>
-      <legend>Test: Bezeichnungskorrektur</legend>
-      <div>
-        <input uiRadius="left" id="idVin_Test_mmID"></input><label for="idVin_Test_mmID" class="cl_info" uiRadius="right">ArtikelNr</label>
-      </div>
-      <div>
-        <input uiRadius="left" id="idVin_Test_name"></input><label for="idVin_Test_name" class="cl_info" uiRadius="right">Bezeichnung</label>
-      </div>
-      <div>
-        <input uiRadius="left" id="idVin_Test_kind"></input><label for="idVin_Test_kind" class="cl_info" uiRadius="right">ArtikelArt</label>
-      </div>
-      <div>
-        <input uiRadius="left" id="idVin_Test_netto"></input><label for="idVin_Test_netto" class="cl_info" uiRadius="right">NettoMenge</label>
-      </div>
-      <div>
-        <input uiRadius="left" id="idVin_Test_brutto"></input><label for="idVin_Test_brutto" class="cl_info" uiRadius="right">Bruttobedarf</label>
-      </div>
-      <div>
-        <input uiRadius="left" id="idVin_Test_unit"></input><label for="idVin_Test_unit" class="cl_info" uiRadius="right">Einheit</label>
       </div>
     </fieldset>
   </main>
