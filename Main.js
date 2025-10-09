@@ -82,12 +82,11 @@ function readData(data) {
 }
 
 let mmID = "ArtikelNr";
-let name = "Bezeichnung";
-let kind = "ArtikelArt";
+let description = "Bezeichnung";
 let netto = "NettoMenge";
 let brutto = "Bruttobedarf";
-let storage = "BestandVerfuegbar";
-const usedPartDataFields = [mmID, name, kind, netto, brutto, storage];
+const basicHeaderFields = [mmID, description, netto, brutto];
+
 let headerFields = [];
 let outputHeader = [];
 
@@ -96,32 +95,34 @@ function parseData() {
   let rows = fileData.rawStringData.split("\n");
 
   headerFields = rows.splice(0, 1)[0].split("\t");
-  outputHeader = [...headerFields];
+  headerFields.splice(-1, 1);
+  createHeaderChecklist();
 
   for (let row of rows) {
     const data = row.split("\t");
     let obj = {};
-    for (let i = 0; i < data.length; i++) {
-      if (isNaN(Number(data[i]))) {
+    for (let i = 0; i < headerFields.length; i++) {
+      if (data[i] == "") {
+        obj[headerFields[i]] = null;
+      } else if (isNaN(Number(data[i]))) {
         obj[headerFields[i]] = data[i];
       } else {
         obj[headerFields[i]] = Number(data[i]);
       }
     }
-    if (!fileData.rowData.hasOwnProperty(obj[mmID])) {
-      fileData.rowData[obj[mmID]] = obj;
-      fileData.rowData[obj[mmID]][netto] = parseNumber(obj[netto]);
-      fileData.rowData[obj[mmID]][brutto] = parseNumber(obj[brutto]);
+    const id = obj[mmID];
+    if (!fileData.rowData.hasOwnProperty(id)) {
+      fileData.rowData[id] = obj;
+      fileData.rowData[id][netto] = parseNumber(obj[netto]);
+      fileData.rowData[id][brutto] = parseNumber(obj[brutto]);
     } else {
-      fileData.rowData[obj[mmID]][netto] += parseNumber(obj[netto]);
-      fileData.rowData[obj[mmID]][brutto] += parseNumber(obj[brutto]);
-      if (fileData.rowData[obj[mmID]][netto] == 0 && fileData.rowData[obj[mmID]][brutto] == 0) delete fileData.rowData[obj[mmID]];
+      fileData.rowData[id][netto] += parseNumber(obj[netto]);
+      fileData.rowData[id][brutto] += parseNumber(obj[brutto]);
     }
+    if (fileData.rowData[id][netto] == 0 && fileData.rowData[id][brutto] == 0) delete fileData.rowData[id];
   }
-
-  createHeaderChecklist();
+  changeHeaderOutput(false);
   createPreviewTable();
-  createOutputData();
 }
 function createPreviewTable() {
   const header = outputHeader.map((item) => {
@@ -133,11 +134,11 @@ function createPreviewTable() {
       data: Object.values(fileData.rowData).map((item) => item[head]),
     })),
   ];
-
   KadTable.createHTMLGrid({ id: "idTab_vorschau", header, body });
 }
 
 function parseNumber(num) {
+  if (num == null) return 0;
   if (!isNaN(num)) return num;
   let str = num.replace(",", ".");
   return Number(str);
@@ -165,6 +166,7 @@ function createOutputData() {
 }
 
 function startDownload() {
+  createOutputData();
   const book = utils.book_new();
   const list = utils.aoa_to_sheet(fileData.listData);
   utils.book_append_sheet(book, list, "Vorschauliste bereinigt");
@@ -178,7 +180,7 @@ function createHeaderChecklist() {
   const body = [
     {
       type: "Checkbox",
-      data: headerFields.map((field) => usedPartDataFields.includes(field)),
+      data: headerFields.map((field) => basicHeaderFields.includes(field)),
       settings: {
         onclick: changeHeaderOutput,
         uiSize,
@@ -191,13 +193,12 @@ function createHeaderChecklist() {
   KadTable.createHTMLGrid({ id: "idTab_Ausgabespalten", header, body });
 }
 
-function changeHeaderOutput() {
+function changeHeaderOutput(redrawTable = true) {
   outputHeader = [];
   for (let i = 0; i < headerFields.length; i++) {
     const id = `idCheckbox_headerCheck_${i}`;
     let check = dbID(id).checked;
     if (check) outputHeader.push(headerFields[i]);
   }
-  createPreviewTable();
-  createOutputData();
+  if (redrawTable) createPreviewTable();
 }
