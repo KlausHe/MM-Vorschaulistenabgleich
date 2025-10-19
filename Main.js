@@ -1,5 +1,5 @@
 import { utils, writeFile } from "./Data/xlsx.mjs";
-import { dbID, initEL, KadLog, KadTable } from "./KadUtils/KadUtils.js";
+import { dbID, initEL, KadTable } from "./KadUtils/KadUtils.js";
 
 initEL({ id: "idVin_mainAssemblyNr", fn: getMainNumber, resetValue: "MM-Nummern Anlage" });
 initEL({ id: "idVin_mainAssemblyName", fn: getMainName, resetValue: "Anlagename" });
@@ -101,7 +101,6 @@ function parseData() {
     } else {
       break;
     }
-    KadLog.log(i);
   }
 
   createHeaderChecklist();
