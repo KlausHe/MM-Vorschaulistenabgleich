@@ -1,5 +1,5 @@
 import { utils, writeFile } from "./Data/xlsx.mjs";
-import { dbID, initEL, KadTable } from "./KadUtils/KadUtils.js";
+import { dbID, initEL, KadLog, KadTable } from "./KadUtils/KadUtils.js";
 
 initEL({ id: "idVin_mainAssemblyNr", fn: getMainNumber, resetValue: "MM-Nummern Anlage" });
 initEL({ id: "idVin_mainAssemblyName", fn: getMainName, resetValue: "Anlagename" });
@@ -95,7 +95,15 @@ function parseData() {
   let rows = fileData.rawStringData.split("\n");
 
   headerFields = rows.splice(0, 1)[0].split("\t");
-  headerFields.splice(-1, 1);
+  for (let i = headerFields.length - 1; i > 0; i--) {
+    if (headerFields[i] === "") {
+      headerFields.splice(i, 1);
+    } else {
+      break;
+    }
+    KadLog.log(i);
+  }
+
   createHeaderChecklist();
 
   for (let row of rows) {
